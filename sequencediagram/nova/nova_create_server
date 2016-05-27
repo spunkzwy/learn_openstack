@@ -1,41 +1,44 @@
 
-client->nova_api: create new server
-note over nova_api: ServersController.create
-note over nova_api: _get_server_admin_password
-note over nova_api: parse_availability_zone
-note over nova_api: _image_from_req_data
-note over nova_api: _get_requested_networks
-note over nova_api: get_flavor_by_flavor_id
-note over nova_api: compute_api.create
-note over nova_api: nova/compute/api.py::API.create
-note over nova_api: _create_instance
-note over nova_api: _validate_and_build_base_options
-note over nova_api: _provision_instances
-note over nova_api: compute_task_api.build_instances
-note over nova_api: conductor_compute_rpcapi.build_instances
-nova_api->client: return server info
-nova_api->nova_conductor:  build_instances
-note over nova_conductor: build_instances
-note over nova_conductor: _schedule_instances
-note over nova_conductor: scheduler_client.select_destinations
-note over nova_conductor: scheduler_rpcapi.select_destinations
-nova_conductor->nova_scheduler: select_destinations
-nova_scheduler->nova_conductor: dests info
-note over nova_conductor: instance.refresh
-note over nova_conductor: compute_rpcapi.build_and_run_instance
-nova_conductor->nova_compute: build and run instance
-note over nova_compute: _locked_do_build_and_run_instance
-note over nova_compute: _do_build_and_run_instance
-note over nova_compute: vm_states.BUILDING
-note over nova_compute: build_and_run_instance
-note over nova_compute: _build_resources
-note over nova_compute: _build_networks_for_instance
-note over nova_compute: _prep_block_device
-note over nova_compute: driver.spawn
-note over nova_compute: _create_image
-note over nova_compute: _get_guest_xml
-note over nova_compute: create_domain_and_network
-note over nova_compute: _wait_for_boot
-note over nova_compute: _update_instance_after_spawn
-note over nova_compute: _update_scheduler_instance_info
-note over nova_compute: _notify_about_instance_usage
+client->nova_api: request create new server
+nova_api->*ServersController.create:
+note over ServersController.create: _get_server_admin_password
+note over ServersController.create: normalize_server_name
+note over ServersController.create: extension_manipula_agrument
+note over ServersController.create: authorize create
+note over ServersController.create: compute_api.parse_availability_zone
+note over ServersController.create: authorize create::attach_volume
+note over ServersController.create: get_image_uuid
+note over ServersController.create: get_requested_networks
+note over ServersController.create: get_flavor_id
+note over ServersController.create: get_instance_type
+ServersController.create->*API.create:nova/compute/api.py
+note over API.create: _check_create_policies
+note over API.create: _check_multiple_instances_and_specified_ip
+note over API.create: _check_multiple_instances_neutron_ports
+note over API.create: validate availability-zone
+note over API.create: scheduler_utils.build_filter_properties
+note over API.create: _create_instance
+note over API.create: get or gengrate reservation id
+note over API.create: get sercurity groups
+note over API.create: _get_image
+note over API.create: get boot_meta
+note over API.create: _check_auto_disk_config
+note over API.create: _validate_and_build_base_options
+note over API.create: adjusted server_count and net_count
+note over API.create: _check_and_transform_bdm
+note over API.create: checks_for_create_and_rebuild
+note over API.create: _get_requested_instance_group
+note over API.create: _provision_instances
+note over API.create: _record_action_start
+API.create->*ComputeTaskAPI.build_instance: build instance
+ComputeTaskAPI.build_instance-->nova_conductor: cast build_instance
+API.create-->ServersController.create: instance reservation_id
+note over ServersController.create: cache_db_instances
+note over ServersController.create: _view_builder.create
+ServersController.create->client: resut server info
+
+nova_conductor->*ComputeTaskManager.build_instance:
+note over ComputeTaskManager.build_instance: scheduler_utils.build_request_spec
+note over ComputeTaskManager.build_instance: _schedule_instances
+note over ComputeTaskManager.build_instance: instance_refresh
+
