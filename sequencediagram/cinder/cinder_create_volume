@@ -1,0 +1,40 @@
+title cinder create volueme
+ 
+participant client
+participant cinder_rest_api
+participant cinder_scheduler
+participant cinder_volume
+parallel {
+    client->cinder_rest_api: create volume
+    note over cinder_rest_api: assert_valid_body
+    note over cinder_rest_api: validate_name_and_description
+    note over cinder_rest_api: check_volume_type
+    note over cinder_rest_api: get_snapshot
+    note over cinder_rest_api: source
+    note over cinder_rest_api: consistencygroup_id
+    note over cinder_rest_api: size
+    note over cinder_rest_api: cinder/volume/api.py
+    note over cinder_rest_api: check_policy
+    note over cinder_rest_api: create_volume.get_flow
+    note over cinder_rest_api: flow_engine.run
+ 
+}
+parallel {
+    cinder_rest_api->client: result volume info
+    note over cinder_rest_api: ExtractVolumeRequestTask
+    note over cinder_rest_api: EntryCreateTask
+    note over cinder_rest_api: QuotaCommitTask
+    note over cinder_rest_api: scheduler_rpcapi.create_volume
+    cinder_rest_api->cinder_scheduler: create volume
+    note over cinder_scheduler: ExtractSchedulerSpecTask
+    note over cinder_scheduler: ScheduleCreateVolumeTask
+    note over cinder_scheduler: driver_api.scheduler_create_volume
+    note over cinder_scheduler: volume_rpcapi.create_volume  
+    cinder_scheduler->cinder_volume: create volume
+    note over cinder_volume: ExtractVolumeRefTask
+    note over cinder_volume: OnFailureRescheduleTask
+    note over cinder_volume: ExtractVolumeSpecTask
+    note over cinder_volume: NotifyVolumeActionTask
+    note over cinder_volume: CreateVolumeFromSpecTask
+    note over cinder_volume: CreateVolumeOnFinishTask
+}
