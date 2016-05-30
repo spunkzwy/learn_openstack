@@ -40,5 +40,20 @@ ServersController.create->client: resut server info
 nova_conductor->*ComputeTaskManager.build_instance:
 note over ComputeTaskManager.build_instance: scheduler_utils.build_request_spec
 note over ComputeTaskManager.build_instance: _schedule_instances
+ComputeTaskManager.build_instance->nova_scheduler: call select_destinations
+nova_scheduler-->ComputeTaskManager.build_instance: return dests 
 note over ComputeTaskManager.build_instance: instance_refresh
-
+note over ComputeTaskManager.build_instance: scheduler_utils.populate_filter_properties
+note over ComputeTaskManager.build_instance: _populate_instance_mapping
+note over ComputeTaskManager.build_instance: _destroy_build_request
+note over ComputeTaskManager.build_instance: compute_rpcapi.build_and_run_instance
+ComputeTaskManager.build_instance-->nova_comute: cast
+nova_compute->*ComputeManager.build_and_run_instance: build instance
+ComputeMnager.build_and_run_instance: _do_build_and_run_instance
+ComputeMnager.build_and_run_instance: set vm_state and task_state
+ComputeMnager.build_and_run_instance: decode injected_files
+ComputeMnager.build_and_run_instance: build_and_run_instance
+ComputeMnager.build_and_run_instance: build_resources
+ComputeMnager.build_and_run_instance: driver.spawn
+ComputeMnager.build_and_run_instance: _update_instance_after_spawn
+ComputeMnager.build_and_run_instance: build_results.ACTIVE
